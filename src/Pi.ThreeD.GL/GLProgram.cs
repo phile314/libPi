@@ -1,0 +1,100 @@
+// 
+// GLProgram.cs
+//  
+// Author:
+//       Philipp Hausmann <philipp_code@314.ch>
+// 
+// Copyright (c) 2012 Philipp Hausmann
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+
+using System;
+using Pi.ThreeD.GL.Internal;
+using OpenTK.Graphics.OpenGL;
+using OGL = OpenTK.Graphics.OpenGL.GL;
+
+namespace Pi.ThreeD.GL
+{
+	public class GLProgram : IDisposable
+	{
+		private bool isDisposed;
+		private GLVertexShader vertexShader;
+		private GLFragmentShader fragmentShader;
+		private int programId;
+		internal GLProgram (String vertexShader, String fragmentShader)
+		{
+			this.vertexShader = new GLVertexShader(vertexShader);
+			this.fragmentShader = new GLFragmentShader(fragmentShader);
+			
+			programId = OGL.CreateProgram();
+			OGL.AttachShader(programId, this.vertexShader.Id);
+			OGL.AttachShader(programId, this.fragmentShader.Id);
+			
+			Link();
+		}
+		
+		private void Link() {
+			OGL.LinkProgram(programId);
+			int success;
+			OGL.GetProgram(programId, ProgramParameter.LinkStatus, out success);
+			if(success == 0) {
+				String message;
+				OGL.GetProgramInfoLog(programId, out message);
+				throw new Exception(String.Format("Error while linking shader: {0}", message));
+			}
+			
+		}
+		
+		internal void Use() {
+			OGL.UseProgram(programId);
+		}
+		
+		internal int GetUniformLocation(String uniformName) {
+			int loc = OGL.GetUniformLocation(programId, uniformName);
+			if(loc == -1) throw new Exception("No such uniform found.");
+			return loc;
+		}
+		
+		internal int GetAttributeLocation(String attributeName) {
+			int loc = OGL.GetAttribLocation(programId, attributeName);
+				if(loc == -1) throw new Exception("No such attribute found.");
+			return loc;
+		}
+		
+		
+		public void Dispose() {
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+		
+		protected void Dispose(bool disposing) {
+			if(!isDisposed) {
+				if(disposing) {
+					OGL.DeleteProgram(programId);
+					vertexShader.Dispose();
+					fragmentShader.Dispose();
+				}
+				vertexShader = null;
+				fragmentShader = null;
+				isDisposed = true;
+			}
+		}
+	}
+}
+
