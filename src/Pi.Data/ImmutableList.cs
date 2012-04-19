@@ -54,6 +54,10 @@ namespace Pi.Data
 			return new _Nil<T>();
 		}
 		
+		public static ImmutableList<T> List(params T[] items) {
+			return List((IEnumerable<T>)items);
+		}
+		
 		public static ImmutableList<T> List(IEnumerable<T> items) {
 			ImmutableList<T> result = Nil();
 			foreach(T item in items) {
@@ -62,6 +66,9 @@ namespace Pi.Data
 			return result;
 		}
 		
+		public Func<T, ImmutableList<T>> Cons() {
+			return (item) => (Cons(item));
+		}
 		public ImmutableList<T> Cons(T item) {
 			return new _Cons<T>(item, this);
 		}
@@ -83,6 +90,15 @@ namespace Pi.Data
 			return current;
 		}
 		
+		
+		public T[] ToArray() {
+			T[] arr = new T[Count];
+			int i = 0;
+			foreach(T item in this) {
+				arr[i++] = item;
+			}
+			return arr;
+		}
 		
 		#region IList[T] implementation
 		int IList<T>.IndexOf (T item)
@@ -150,7 +166,7 @@ namespace Pi.Data
 			throw new NotImplementedException ();
 		}
 
-		int ICollection<T>.Count {
+		public int Count {
 			get {
 				return FoldLeft<int>((accu, _) => (accu + 1), 0);
 			}

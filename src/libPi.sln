@@ -7,6 +7,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "lib", "lib", "{89CF42B1-BF0
 	ProjectSection(SolutionItems) = preProject
 		lib\OpenTK.dll = lib\OpenTK.dll
 		lib\OpenTK.dll.config = lib\OpenTK.dll.config
+		lib\log4net.dll = lib\log4net.dll
+		lib\log4net.xml = lib\log4net.xml
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CliTest", "CliTest\CliTest.csproj", "{FF7C44C6-8D33-4E49-841F-5ABD750EFB15}"

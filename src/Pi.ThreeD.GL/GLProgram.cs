@@ -28,11 +28,14 @@ using System;
 using Pi.ThreeD.GL.Internal;
 using OpenTK.Graphics.OpenGL;
 using OGL = OpenTK.Graphics.OpenGL.GL;
+using log4net;
 
 namespace Pi.ThreeD.GL
 {
 	public class GLProgram : IDisposable
 	{
+		private readonly static ILog log = LogManager.GetLogger(typeof(GLProgram));
+		
 		private bool isDisposed;
 		private GLVertexShader vertexShader;
 		private GLFragmentShader fragmentShader;
@@ -59,6 +62,14 @@ namespace Pi.ThreeD.GL
 				throw new Exception(String.Format("Error while linking shader: {0}", message));
 			}
 			
+			OGL.ValidateProgram(programId);
+			OGL.GetProgram(programId, ProgramParameter.ValidateStatus, out success);
+			if(success == 0) {
+				String message;
+				OGL.GetProgramInfoLog(programId, out message);
+				throw new Exception(String.Format("Error while validating shader: {0}", message));
+			}
+			
 		}
 		
 		internal void Use() {
@@ -67,13 +78,13 @@ namespace Pi.ThreeD.GL
 		
 		internal int GetUniformLocation(String uniformName) {
 			int loc = OGL.GetUniformLocation(programId, uniformName);
-			if(loc == -1) throw new Exception("No such uniform found.");
+			if(loc == -1) log.Debug(String.Format("No uniform with name {0} found.", uniformName));
 			return loc;
 		}
 		
 		internal int GetAttributeLocation(String attributeName) {
 			int loc = OGL.GetAttribLocation(programId, attributeName);
-				if(loc == -1) throw new Exception("No such attribute found.");
+				if(loc == -1) log.Debug(String.Format("No attribute with name {0} found.", attributeName));
 			return loc;
 		}
 		
@@ -86,9 +97,11 @@ namespace Pi.ThreeD.GL
 		protected void Dispose(bool disposing) {
 			if(!isDisposed) {
 				if(disposing) {
-					OGL.DeleteProgram(programId);
+					OGL.DetachShader(programId, vertexShader.Id);
 					vertexShader.Dispose();
+					OGL.DetachShader(programId, fragmentShader.Id);
 					fragmentShader.Dispose();
+					OGL.DeleteProgram(programId);
 				}
 				vertexShader = null;
 				fragmentShader = null;

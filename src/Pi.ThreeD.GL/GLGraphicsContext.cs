@@ -161,6 +161,12 @@ namespace Pi.ThreeD.GL
 			} else if(data is Vector4) {
 				Vector4 temp = (Vector4)data;
 				OGL.Uniform4(uniformLoc, ref temp);
+			} else if(data is float) {
+				OGL.Uniform1(uniformLoc, (float)data);
+			} else if(data is int) {
+				OGL.Uniform1(uniformLoc, (int)data);
+			} else {
+				throw new NotSupportedException();
 			}
 		}
 		
