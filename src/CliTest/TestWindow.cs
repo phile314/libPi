@@ -40,8 +40,6 @@ namespace CliTest
 			
 			this.modelViewMatrix = Matrix4.CreateTranslation(0, 0, -4f);
 			this.projectionMatrix = Matrix4.CreateOrthographic(2f, 2f, 0.1f, 10f);
-			
-			context = GLGraphics.NewContext();
 		}
 		
 		
@@ -54,7 +52,7 @@ namespace CliTest
 			String version = GL.GetString(StringName.Version);
 			Console.WriteLine("GL version: " + version);
 			
-			context.Initialize();
+			context = GLGraphics.NewContext(Context);
 			
 			program = context.NewProgramFromFiles("Render.vert", "Render.frag");
 			

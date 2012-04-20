@@ -57,14 +57,25 @@ namespace Pi.ThreeD.GL
 		}
 		
 		public void UploadImage(Bitmap image) {
+			PrepareForUpload();
+			BitmapData data = image.LockBits(new Rectangle(0, 0, image.Width, image.Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
+			OGL.TexImage2D(target, 0, PixelInternalFormat.Four, image.Width, image.Height, 0, OpenTK.Graphics.OpenGL.PixelFormat.Bgr, OpenTK.Graphics.OpenGL.PixelType.UnsignedByte, data.Scan0);
+			image.UnlockBits(data);
+		}
+		
+		public void UploadImage(byte[] image, int imageWidth, int imageHeight, OpenTK.Graphics.OpenGL.PixelInternalFormat internalFormat,
+			OpenTK.Graphics.OpenGL.PixelFormat pixelFormat,
+			OpenTK.Graphics.OpenGL.PixelType pixelType) {
+			PrepareForUpload();
+			OGL.TexImage2D(target, 0, internalFormat, imageWidth, imageHeight, 0, pixelFormat, pixelType, image);
+		}
+		
+		private void PrepareForUpload() {
 			OGL.ActiveTexture(unit);
 			OGL.TexParameter(target, TextureParameterName.TextureMinFilter, (int)minFilter);
 			OGL.TexParameter(target, TextureParameterName.TextureMagFilter, (int)magFilter);
 			OGL.TexParameter(target, TextureParameterName.TextureWrapS, (int)wrapS);
 			OGL.TexParameter(target, TextureParameterName.TextureWrapT, (int)wrapT);
-			BitmapData data = image.LockBits(new Rectangle(0, 0, image.Width, image.Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
-			OGL.TexImage2D(target, 0, PixelInternalFormat.Four, image.Width, image.Height, 0, OpenTK.Graphics.OpenGL.PixelFormat.Bgr, OpenTK.Graphics.OpenGL.PixelType.UnsignedByte, data.Scan0);
-			image.UnlockBits(data);
 		}
 		
 		internal TextureUnit Unit {

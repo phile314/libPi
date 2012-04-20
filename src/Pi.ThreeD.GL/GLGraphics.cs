@@ -25,15 +25,16 @@
 // THE SOFTWARE.
 
 using System;
+using OpenTK.Graphics;
 
 namespace Pi.ThreeD.GL
 {
 	public static class GLGraphics
 	{
 		
-		public static GLGraphicsContext NewContext ()
+		public static GLGraphicsContext NewContext (IGraphicsContext tkContext)
 		{
-			return new GLGraphicsContext();
+			return new GLGraphicsContext(tkContext);
 		}
 	}
 }

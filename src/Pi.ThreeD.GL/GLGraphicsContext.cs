@@ -28,6 +28,7 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using OpenTK;
+using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using OGL = OpenTK.Graphics.OpenGL.GL;
 
@@ -38,11 +39,15 @@ namespace Pi.ThreeD.GL
 		private bool isDisposed;
 		private LinkedList<WeakReference> toDispose = new System.Collections.Generic.LinkedList<WeakReference>();
 		private Stack<TextureUnit> freeUnits = new Stack<TextureUnit>();
+		private readonly IGraphicsContext tkContext;
 		
-		internal GLGraphicsContext ()
-		{}
+		internal GLGraphicsContext (IGraphicsContext tkContext)
+		{
+			this.tkContext = tkContext;
+			Initialize();
+		}
 		
-		public void Initialize() {
+		private void Initialize() {
 			int textureUnitCount;
 			OGL.GetInteger(GetPName.MaxCombinedTextureImageUnits, out textureUnitCount);
 			for(int i = textureUnitCount - 1; i >= 0; i--) {
