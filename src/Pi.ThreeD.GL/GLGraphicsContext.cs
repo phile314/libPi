@@ -39,11 +39,9 @@ namespace Pi.ThreeD.GL
 		private bool isDisposed;
 		private LinkedList<WeakReference> toDispose = new System.Collections.Generic.LinkedList<WeakReference>();
 		private Stack<TextureUnit> freeUnits = new Stack<TextureUnit>();
-		private readonly IGraphicsContext tkContext;
 		
 		internal GLGraphicsContext (IGraphicsContext tkContext)
 		{
-			this.tkContext = tkContext;
 			Initialize();
 		}
 		
@@ -154,6 +152,11 @@ namespace Pi.ThreeD.GL
 		private void PassUniform(Object data, int uniformLoc) {
 			if(data is GLTexture) {
 				OGL.Uniform1(uniformLoc, GLHelpers.TextureUnitToId(((GLTexture)data).Unit));
+			} else if(data is Matrix3) {
+				Matrix3 temp = (Matrix3)data;
+				unsafe {
+					OGL.UniformMatrix3(uniformLoc, 1, false, &temp.Row0.X);
+				}
 			} else if(data is Matrix4) {
 				Matrix4 temp = (Matrix4)data;
 				OGL.UniformMatrix4(uniformLoc, false, ref temp);
