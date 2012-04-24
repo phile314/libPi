@@ -97,7 +97,7 @@ namespace CliTest
 		protected override void OnResize (EventArgs e)
 		{
 			base.OnResize (e);
-			GL.Viewport(ClientRectangle);
+			context.SetViewport(ClientRectangle);
 		}
 		
 		

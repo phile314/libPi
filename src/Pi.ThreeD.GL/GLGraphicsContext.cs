@@ -40,6 +40,11 @@ namespace Pi.ThreeD.GL
 		private LinkedList<WeakReference> toDispose = new System.Collections.Generic.LinkedList<WeakReference>();
 		private Stack<TextureUnit> freeUnits = new Stack<TextureUnit>();
 		
+		internal GLGraphicsContext ()
+		{
+			Initialize();
+		}
+		
 		internal GLGraphicsContext (IGraphicsContext tkContext)
 		{
 			Initialize();
@@ -68,6 +73,44 @@ namespace Pi.ThreeD.GL
 			return AddToDisposables(new GLIndicesBuffer());
 		}
 		
+		/// <summary>
+		/// Creates a new texture and uploads a empty image.
+		/// </summary>
+		/// <returns>
+		/// The created texture.
+		/// </returns>
+		/// <param name='minFilter'>
+		/// Minification filter.
+		/// </param>
+		/// <param name='magFilter'>
+		/// Magnification filter.
+		/// </param>
+		/// <param name='wrapS'>
+		/// Wrap s.
+		/// </param>
+		/// <param name='wrapT'>
+		/// Wrap t.
+		/// </param>
+		/// <param name='width'>
+		/// Width.
+		/// </param>
+		/// <param name='height'>
+		/// Height.
+		/// </param>
+		/// <param name='pixelFormat'>
+		/// Pixel format.
+		/// </param>
+		/// <param name='pixelType'>
+		/// Pixel type.
+		/// </param>
+		public GLTexture NewEmptyTexture(TextureMinFilter minFilter, TextureMagFilter magFilter, TextureWrapMode wrapS, TextureWrapMode wrapT,
+			int width, int height, PixelFormat pixelFormat, PixelType pixelType) {
+			GLTexture tex = NewTexture(minFilter, magFilter, wrapS, wrapT);
+			byte[] empty = new byte[width * height * 4];
+			tex.UploadImage(empty, width, height, PixelInternalFormat.Four, pixelFormat, pixelType);
+			return tex;
+		}
+		
 		public GLTexture NewTexture (TextureMinFilter minFilter, TextureMagFilter magFilter, TextureWrapMode wrapS, TextureWrapMode wrapT)
 		{
 			TextureUnit texUnit = freeUnits.Pop();
@@ -85,6 +128,13 @@ namespace Pi.ThreeD.GL
 		
 		public void Clear() {
 			OGL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+		}
+		
+		public void SetViewport(System.Drawing.Rectangle rect) {
+			OGL.Viewport(rect);
+		}
+		public void SetViewport(int x, int y, int width, int height) {
+			OGL.Viewport(x, y, width, height);
 		}
 		
 		public void RunProgram(GLProgram program, IEnumerable<Tuple<Object, String>> parameters,

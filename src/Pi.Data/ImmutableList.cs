@@ -100,6 +100,12 @@ namespace Pi.Data
 			return arr;
 		}
 		
+		public ImmutableList<T> Reverse() {
+			return FoldLeft<ImmutableList<T>>(
+				(accu, a) => accu.Cons(a),
+				ImmutableList<T>.Nil());
+		}
+		
 		#region IList[T] implementation
 		int IList<T>.IndexOf (T item)
 		{

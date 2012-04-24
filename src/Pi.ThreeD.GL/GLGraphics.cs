@@ -32,6 +32,11 @@ namespace Pi.ThreeD.GL
 	public static class GLGraphics
 	{
 		
+		public static GLGraphicsContext NewContext ()
+		{
+			return new GLGraphicsContext();
+		}
+		
 		public static GLGraphicsContext NewContext (IGraphicsContext tkContext)
 		{
 			return new GLGraphicsContext(tkContext);
