@@ -25,7 +25,7 @@ namespace CliTest
 		private GLGenericVertexBuffer<Vector3> positions;
 		private GLGenericVertexBuffer<Vector2> textureCoords;
 		private GLIndicesBuffer indices;
-		private GLTexture texture;
+		private GLTexture texture0, texture1;
 		private ImmutableList<Tuple<Object, String>> paramSpec;
 		
 		private Matrix4 modelViewMatrix, projectionMatrix;
@@ -56,15 +56,19 @@ namespace CliTest
 			
 			program = context.NewProgramFromFiles("Render.vert", "Render.frag");
 			
-			texture = context.NewTexture(TextureMinFilter.Nearest, TextureMagFilter.Nearest, TextureWrapMode.Clamp, TextureWrapMode.Clamp);
-			texture.UploadImage(sourceImage);
+			texture0 = context.NewTexture(TextureMinFilter.Nearest, TextureMagFilter.Nearest, TextureWrapMode.Clamp, TextureWrapMode.Clamp);
+			texture0.UploadImage(sourceImage);
 			sourceImage.Dispose();
+			
+			texture1 = context.NewTexture(TextureMinFilter.Nearest, TextureMagFilter.Nearest, TextureWrapMode.Clamp, TextureWrapMode.Clamp);
+			texture1.UploadImage(new byte[4 * 4 * 4], 4, 4, PixelInternalFormat.Four, PixelFormat.Rgba, PixelType.UnsignedByte);
 			
 			CreateAndFillBuffers();
 			paramSpec = ImmutableList<Tuple<Object, String>>.List(new Tuple<Object, String>[] {
 				Tuple.Create<object,String>(positions, "a_position"),
 				Tuple.Create<object,String>(textureCoords, "a_texPos"),
-				Tuple.Create<object,String>(texture, "u_texture0")});
+				Tuple.Create<object,String>(texture0, "u_texture0"),
+				Tuple.Create<object,String>(texture1, "u_texture1")});
 		}
 		
 		private void CreateAndFillBuffers() {

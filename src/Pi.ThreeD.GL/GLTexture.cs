@@ -56,8 +56,9 @@ namespace Pi.ThreeD.GL
 			this.unit = unit;
 			this.disposing = disposing;
 			
-			OGL.BindTexture(target, textureId);
+			OGL.ActiveTexture(unit);
 			OGL.GenTextures(1, out textureId);
+			OGL.BindTexture(target, textureId);
 		}
 		
 		public void UploadImage(Bitmap image) {

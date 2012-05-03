@@ -33,7 +33,7 @@ namespace Pi.ThreeD.GL
 	internal static class GLHelpers
 	{
 		public static int TextureUnitToId(TextureUnit unit) {
-			return 33984 - ((int)unit);
+			return ((int)unit) - 33984;
 		}
 		
 		public static TextureUnit IdToTextureUnit(int id) {
