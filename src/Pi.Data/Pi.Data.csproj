@@ -34,6 +34,8 @@
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="ImmutableList.cs" />
+    <Compile Include="Concurrent\AtomicBoolean.cs" />
+    <Compile Include="Concurrent\AtomicReference.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
@@ -45,4 +47,7 @@
       </Properties>
     </MonoDevelop>
   </ProjectExtensions>
+  <ItemGroup>
+    <Folder Include="Concurrent\" />
+  </ItemGroup>
 </Project>
