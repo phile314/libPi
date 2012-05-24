@@ -2,3 +2,4 @@ src/Pi.Data/bin/
 src/Pi.ThreeD.GL/bin/
 src/CliTest/bin/
 *.pidb
+src/CliTest/in.jpg

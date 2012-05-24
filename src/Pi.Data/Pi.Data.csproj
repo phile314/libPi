@@ -36,6 +36,10 @@
     <Compile Include="ImmutableList.cs" />
     <Compile Include="Concurrent\AtomicBoolean.cs" />
     <Compile Include="Concurrent\AtomicReference.cs" />
+    <Compile Include="Concurrent\AtomicFloat.cs" />
+    <Compile Include="Concurrent\AtomicDouble.cs" />
+    <Compile Include="Concurrent\AtomicLong.cs" />
+    <Compile Include="Concurrent\AtomicInteger.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
