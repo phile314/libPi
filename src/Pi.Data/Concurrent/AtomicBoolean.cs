@@ -51,11 +51,11 @@ namespace Pi.Data.Concurrent
 		}
 		
 		public bool Get() {
-			return Thread.VolatileRead(ref value) == TRUE;
+			return CompareExchange(false, false);
 		}
 		
 		public void Set(bool newValue) {
-			Thread.VolatileWrite(ref this.value, newValue ? TRUE : FALSE);
+			Exchange(newValue);
 		}
 
 	}
