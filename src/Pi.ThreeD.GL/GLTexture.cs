@@ -62,11 +62,15 @@ namespace Pi.ThreeD.GL
 		}
 		
 		public void UploadImage(Bitmap image) {
+			UploadImage (image, PixelInternalFormat.Four);
+		}
+		
+		public void UploadImage(Bitmap image, PixelInternalFormat internalFormat) {
 			this.pixelFormat = OpenTK.Graphics.OpenGL.PixelFormat.Bgr;
 			this.pixelType = OpenTK.Graphics.OpenGL.PixelType.UnsignedByte;
 			PrepareForUpload();
 			BitmapData data = image.LockBits(new Rectangle(0, 0, image.Width, image.Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
-			OGL.TexImage2D(target, 0, PixelInternalFormat.Four, image.Width, image.Height, 0, pixelFormat, pixelType, data.Scan0);
+			OGL.TexImage2D(target, 0, internalFormat, image.Width, image.Height, 0, pixelFormat, pixelType, data.Scan0);
 			image.UnlockBits(data);
 		}
 		
