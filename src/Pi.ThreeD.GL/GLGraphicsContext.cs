@@ -76,38 +76,23 @@ namespace Pi.ThreeD.GL
 		/// <summary>
 		/// Creates a new texture and uploads a empty image.
 		/// </summary>
-		/// <returns>
-		/// The created texture.
-		/// </returns>
-		/// <param name='minFilter'>
-		/// Minification filter.
-		/// </param>
-		/// <param name='magFilter'>
-		/// Magnification filter.
-		/// </param>
-		/// <param name='wrapS'>
-		/// Wrap s.
-		/// </param>
-		/// <param name='wrapT'>
-		/// Wrap t.
-		/// </param>
-		/// <param name='width'>
-		/// Width.
-		/// </param>
-		/// <param name='height'>
-		/// Height.
-		/// </param>
-		/// <param name='pixelFormat'>
-		/// Pixel format.
-		/// </param>
-		/// <param name='pixelType'>
-		/// Pixel type.
-		/// </param>
 		public GLTexture NewEmptyTexture(TextureMinFilter minFilter, TextureMagFilter magFilter, TextureWrapMode wrapS, TextureWrapMode wrapT,
-			int width, int height, PixelFormat pixelFormat, PixelType pixelType) {
+			int width, int height,
+			PixelFormat pixelFormat, PixelType pixelType) {
+			return NewEmptyTexture(minFilter, magFilter, wrapS, wrapT,
+				width, height,
+				pixelFormat, pixelType, PixelInternalFormat.Four);
+		}
+		
+		/// <summary>
+		/// Creates a new texture and uploads a empty image.
+		/// </summary>
+		public GLTexture NewEmptyTexture(TextureMinFilter minFilter, TextureMagFilter magFilter, TextureWrapMode wrapS, TextureWrapMode wrapT,
+			int width, int height,
+			PixelFormat pixelFormat, PixelType pixelType, PixelInternalFormat internalFormat) {
 			GLTexture tex = NewTexture(minFilter, magFilter, wrapS, wrapT);
 			byte[] empty = new byte[width * height * 4];
-			tex.UploadImage(empty, width, height, PixelInternalFormat.Four, pixelFormat, pixelType);
+			tex.UploadImage(empty, width, height, internalFormat, pixelFormat, pixelType);
 			return tex;
 		}
 		
