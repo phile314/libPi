@@ -169,7 +169,23 @@ namespace Pi.Data
 
 		void ICollection<T>.CopyTo (T[] array, int arrayIndex)
 		{
-			throw new NotImplementedException ();
+			if(array == null) {
+				throw new ArgumentNullException();
+			}
+			if(arrayIndex < 0) {
+				throw new ArgumentOutOfRangeException();
+			}
+			try {
+				int i = arrayIndex;
+				ImmutableList<T> current = this;
+				while(!current.IsEmpty) {
+					array[i] = current.Head;
+					i++;
+					current = current.Tail;
+				}
+			} catch (IndexOutOfRangeException) {
+				throw new ArgumentException();
+			}
 		}
 
 		public int Count {
