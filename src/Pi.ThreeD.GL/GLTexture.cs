@@ -103,6 +103,35 @@ namespace Pi.ThreeD.GL
 			PrepareForUpload();
 			OGL.TexImage2D(target, 0, internalFormat, imageWidth, imageHeight, 0, pixelFormat, pixelType, image);
 		}
+		/// <summary>
+		/// Uploads a image to a texture unit. If you update an existing image, UploadSubImage should be used as it is faster.
+		/// </summary>
+		/// <param name='image'>
+		/// The image.
+		/// </param>
+		/// <param name='imageWidth'>
+		/// Image width.
+		/// </param>
+		/// <param name='imageHeight'>
+		/// Image height.
+		/// </param>
+		/// <param name='internalFormat'>
+		/// Internal format.
+		/// </param>
+		/// <param name='pixelFormat'>
+		/// Pixel format.
+		/// </param>
+		/// <param name='pixelType'>
+		/// Pixel type.
+		/// </param>
+		public void UploadImage(IntPtr image, int imageWidth, int imageHeight, OpenTK.Graphics.OpenGL.PixelInternalFormat internalFormat,
+			OpenTK.Graphics.OpenGL.PixelFormat pixelFormat,
+			OpenTK.Graphics.OpenGL.PixelType pixelType) {
+			this.pixelFormat = pixelFormat;
+			this.pixelType = pixelType;
+			PrepareForUpload();
+			OGL.TexImage2D(target, 0, internalFormat, imageWidth, imageHeight, 0, pixelFormat, pixelType, image);
+		}
 		
 		/// <summary>
 		/// Updates a part of an existing texture with a new image.
@@ -123,6 +152,28 @@ namespace Pi.ThreeD.GL
 		/// Image height.
 		/// </param>
 		public void UploadSubImage(byte[] subImage, int offsetX, int offsetY, int imageWidth, int imageHeight) {
+			PrepareForUpload();
+			OGL.TexSubImage2D(target, 0, offsetX, offsetY, imageWidth, imageHeight, pixelFormat, pixelType, subImage);
+		}
+		/// <summary>
+		/// Updates a part of an existing texture with a new image.
+		/// </summary>
+		/// <param name='subImage'>
+		/// The new sub image.
+		/// </param>
+		/// <param name='offsetX'>
+		/// Offset x.
+		/// </param>
+		/// <param name='offsetY'>
+		/// Offset y.
+		/// </param>
+		/// <param name='imageWidth'>
+		/// Image width.
+		/// </param>
+		/// <param name='imageHeight'>
+		/// Image height.
+		/// </param>
+		public void UploadSubImage(IntPtr subImage, int offsetX, int offsetY, int imageWidth, int imageHeight) {
 			PrepareForUpload();
 			OGL.TexSubImage2D(target, 0, offsetX, offsetY, imageWidth, imageHeight, pixelFormat, pixelType, subImage);
 		}

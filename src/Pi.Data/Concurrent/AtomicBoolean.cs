@@ -33,7 +33,7 @@ namespace Pi.Data.Concurrent
 	{
 		private const int TRUE = 1;
 		private const int FALSE = 0;
-		private int value;
+		private volatile int value;
 
 		public AtomicBoolean(bool initialValue)
 		{
@@ -42,20 +42,40 @@ namespace Pi.Data.Concurrent
 
 		public bool CompareExchange(bool newValue, bool comparand)
 		{
+			#pragma warning disable 0420
 			return Interlocked.CompareExchange(ref this.value, newValue ? TRUE : FALSE, comparand ? TRUE : FALSE) == TRUE;
+			#pragma warning restore 0420
+		}
+		
+		/// <summary>
+		/// Applies the given function to the current value. This operation is atomic.
+		/// The function f MUST be pure, else the behaviour of this method is undefined.
+		/// </summary>
+		/// <param name='f'>
+		/// The update function.
+		/// </param>
+		public void Update(Func<bool, bool> f) {
+			bool initial, newValue;
+			do {
+				initial = Get ();
+				newValue = f(initial);
+				
+			} while (CompareExchange(newValue, initial) != initial);
 		}
 
 		public bool Exchange(bool newValue)
 		{
+			#pragma warning disable 0420
 			return Interlocked.Exchange(ref this.value, newValue ? TRUE : FALSE) == TRUE;
+			#pragma warning restore 0420
 		}
 		
 		public bool Get() {
-			return CompareExchange(false, false);
+			return value == TRUE;
 		}
 		
 		public void Set(bool newValue) {
-			Exchange(newValue);
+			value = (newValue ? TRUE : FALSE);
 		}
 
 	}

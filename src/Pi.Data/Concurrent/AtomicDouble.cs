@@ -30,25 +30,44 @@ namespace Pi.Data.Concurrent
 {
 	public class AtomicDouble
 	{
-		private double value;
+		private long value;
 
 		public AtomicDouble(double initialValue)
 		{
+			
 			Set(initialValue);
 		}
 
 		public double CompareExchange(double newValue, double comparand)
 		{
-			return Interlocked.CompareExchange(ref this.value, newValue, comparand);
+			return BitConverter.Int64BitsToDouble(Interlocked.CompareExchange(ref this.value,
+				BitConverter.DoubleToInt64Bits(newValue), BitConverter.DoubleToInt64Bits(comparand)));
+		}
+		
+		/// <summary>
+		/// Applies the given function to the current value. This operation is atomic.
+		/// The function f MUST be pure, else the behaviour of this method is undefined.
+		/// </summary>
+		/// <param name='f'>
+		/// The update function.
+		/// </param>
+		public void Update(Func<double, double> f) {
+			double initial, newValue;
+			do {
+				initial = Get ();
+				newValue = f(initial);
+				
+			} while (CompareExchange(newValue, initial) != initial);
 		}
 
 		public double Exchange(double newValue)
 		{
-			return Interlocked.Exchange(ref this.value, newValue);
+			return BitConverter.Int64BitsToDouble(Interlocked.Exchange(ref this.value,
+				BitConverter.DoubleToInt64Bits(newValue)));
 		}
 		
 		public double Get() {
-			return CompareExchange(0, 0);
+			return BitConverter.Int64BitsToDouble(Interlocked.Read(ref value));
 		}
 		
 		public void Set(double newValue) {

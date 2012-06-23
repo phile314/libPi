@@ -30,7 +30,7 @@ namespace Pi.Data.Concurrent
 {
 	public class AtomicFloat
 	{
-		private float value;
+		private volatile float value;
 
 		public AtomicFloat(float initialValue)
 		{
@@ -39,20 +39,40 @@ namespace Pi.Data.Concurrent
 
 		public float CompareExchange(float newValue, float comparand)
 		{
+			#pragma warning disable 0420
 			return Interlocked.CompareExchange(ref this.value, newValue, comparand);
+			#pragma warning restore 0420
+		}
+		
+		/// <summary>
+		/// Applies the given function to the current value. This operation is atomic.
+		/// The function f MUST be pure, else the behaviour of this method is undefined.
+		/// </summary>
+		/// <param name='f'>
+		/// The update function.
+		/// </param>
+		public void Update(Func<float, float> f) {
+			float initial, newValue;
+			do {
+				initial = value;
+				newValue = f(initial);
+				
+			} while (CompareExchange(newValue, initial) != initial);
 		}
 
 		public float Exchange(float newValue)
 		{
+			#pragma warning disable 0420
 			return Interlocked.Exchange(ref this.value, newValue);
+			#pragma warning restore 0420
 		}
 		
 		public float Get() {
-			return CompareExchange(0.0f, 0.0f);
+			return value;
 		}
 		
 		public void Set(float newValue) {
-			Exchange(newValue);
+			value = newValue;
 		}
 
 	}

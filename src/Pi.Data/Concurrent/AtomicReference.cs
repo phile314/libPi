@@ -31,7 +31,7 @@ namespace Pi.Data.Concurrent
 	public class AtomicReference<T>
 		where T : class
 	{
-		private T value;
+		private volatile T value;
 
 		public AtomicReference(T initialValue)
 		{
@@ -40,20 +40,40 @@ namespace Pi.Data.Concurrent
 
 		public T CompareExchange(T newValue, T comparand)
 		{
+			#pragma warning disable 0420
 			return Interlocked.CompareExchange<T>(ref this.value, newValue, comparand);
+			#pragma warning restore 0420
+		}
+		
+		/// <summary>
+		/// Applies the given function to the current value. This operation is atomic.
+		/// The function f MUST be pure, else the behaviour of this method is undefined.
+		/// </summary>
+		/// <param name='f'>
+		/// The update function.
+		/// </param>
+		public void Update(Func<T, T> f) {
+			T initial, newValue;
+			do {
+				initial = value;
+				newValue = f(initial);
+				
+			} while (CompareExchange(newValue, initial) != initial);
 		}
 
 		public T Exchange(T newValue)
 		{
+			#pragma warning disable 0420
 			return Interlocked.Exchange<T>(ref this.value, newValue);
+			#pragma warning restore 0420
 		}
 		
 		public T Get() {
-			return CompareExchange (null, null);
+			return value;
 		}
 		
 		public void Set(T newValue) {
-			Exchange (newValue);
+			value = newValue;
 		}
 	}
 }

@@ -41,14 +41,30 @@ namespace Pi.Data.Concurrent
 		{
 			return Interlocked.CompareExchange(ref this.value, newValue, comparand);
 		}
-
+		
+		/// <summary>
+		/// Applies the given function to the current value. This operation is atomic.
+		/// The function f MUST be pure, else the behaviour of this method is undefined.
+		/// </summary>
+		/// <param name='f'>
+		/// The update function.
+		/// </param>
+		public void Update(Func<long, long> f) {
+			long initial, newValue;
+			do {
+				initial = Get();
+				newValue = f(initial);
+				
+			} while (CompareExchange(newValue, initial) != initial);
+		}
+		
 		public long Exchange(long newValue)
 		{
 			return Interlocked.Exchange(ref this.value, newValue);
 		}
 		
 		public long Get() {
-			return CompareExchange(0, 0);
+			return Interlocked.Read(ref value);
 		}
 		
 		public void Set(long newValue) {
