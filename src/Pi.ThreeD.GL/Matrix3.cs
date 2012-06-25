@@ -395,6 +395,13 @@ namespace Pi.ThreeD.GL
         }
 
         #endregion
+		
+		public Matrix4 Lift() {
+			return new Matrix4(M11, M12, M13, 0,
+				M21, M22, M23, 0,
+				M31, M32, M33, 0,
+				0, 0, 0, 1);
+		}
 
         #region Scale Functions
 
@@ -540,7 +547,7 @@ namespace Pi.ThreeD.GL
         /// </summary>
         /// <param name="mat">The matrix to invert</param>
         /// <returns>The inverse of the given matrix if it has one, or the input if it is singular</returns>
-        /// <exception cref="InvalidOperationException">Thrown if the Matrix4 is singular.</exception>
+        /// <exception cref="InvalidOperationException">Thrown if the Matrix3 is singular.</exception>
         public static Matrix3 Invert(Matrix3 mat)
         {
 			//see Matrix4 for an implementation
@@ -666,7 +673,7 @@ namespace Pi.ThreeD.GL
             if (!(obj is Matrix3))
                 return false;
 
-            return this.Equals((Matrix4)obj);
+            return this.Equals((Matrix3)obj);
         }
 
         #endregion
@@ -675,7 +682,7 @@ namespace Pi.ThreeD.GL
 
         #endregion
 
-        #region IEquatable<Matrix4> Members
+        #region IEquatable<Matrix3> Members
 
         /// <summary>Indicates whether the current matrix is equal to another matrix.</summary>
         /// <param name="other">An matrix to compare with this matrix.</param>
