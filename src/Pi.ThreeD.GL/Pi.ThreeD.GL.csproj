@@ -56,6 +56,8 @@
     <Compile Include="Matrix3.cs" />
     <Compile Include="Renderers\TextRenderer.cs" />
     <Compile Include="Renderers\TextureRenderer.cs" />
+    <Compile Include="GLFrameBuffer.cs" />
+    <Compile Include="GLRenderBuffer.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

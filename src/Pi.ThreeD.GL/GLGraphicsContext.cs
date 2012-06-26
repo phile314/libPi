@@ -37,8 +37,10 @@ namespace Pi.ThreeD.GL
 	public class GLGraphicsContext
 	{
 		private bool isDisposed;
+		private LinkedList<System.Drawing.Rectangle> viewports = new LinkedList<System.Drawing.Rectangle>();
 		private LinkedList<WeakReference> toDispose = new System.Collections.Generic.LinkedList<WeakReference>();
 		private Stack<TextureUnit> freeUnits = new Stack<TextureUnit>();
+		private readonly bool debug;
 		
 		internal GLGraphicsContext ()
 		{
@@ -46,11 +48,18 @@ namespace Pi.ThreeD.GL
 		}
 		
 		internal GLGraphicsContext (IGraphicsContext tkContext)
+			: this(tkContext, false)
+		{}
+		
+		internal GLGraphicsContext (IGraphicsContext tkContext, bool debug)
 		{
+			this.debug = debug;
 			Initialize();
 		}
 		
 		private void Initialize() {
+			viewports.AddFirst(new System.Drawing.Rectangle(0, 0, 0, 0));
+			
 			int textureUnitCount;
 			OGL.GetInteger(GetPName.MaxCombinedTextureImageUnits, out textureUnitCount);
 			for(int i = textureUnitCount - 1; i >= 0; i--) {
@@ -111,15 +120,64 @@ namespace Pi.ThreeD.GL
 			return NewProgram(File.ReadAllText(vertexShaderFile), File.ReadAllText(fragmentShaderFile));
 		}
 		
+		public GLRenderBuffer NewRenderBuffer(int width, int height, RenderbufferStorage storage) {
+			return AddToDisposables(new GLRenderBuffer(width, height, storage, this));
+		}
+		
+		public GLFrameBuffer NewFrameBuffer(GLRenderBuffer colorBuffer, GLRenderBuffer depthBuffer,
+			FramebufferTarget fbTarget) {
+			return AddToDisposables(new GLFrameBuffer(colorBuffer, depthBuffer, fbTarget,
+				false, this));
+		}
+		
+		
+		public void CheckForErrors() {
+			
+			ErrorCode err = OGL.GetError();
+			if(err != ErrorCode.NoError) {
+				throw new Exception(String.Format("GL error: {0}", err));
+				
+			}
+		}
+		
+		public void CheckForErrorsIfDebugging() {
+			if(debug) {
+				CheckForErrors();
+			}
+		}
+		
+		
+		public void ReadPixels(int x, int y, int width, int height, PixelFormat pixelFormat, PixelType pixelType,
+			IntPtr data) {
+			OGL.ReadPixels(x, y, width, height, pixelFormat, pixelType,
+				data);
+		}
+		
+		public void ReadPixels<T>(int x, int y, int width, int height, PixelFormat pixelFormat, PixelType pixelType,
+			T[] data)
+			where T : struct
+		{
+			OGL.ReadPixels<T>(x, y, width, height, pixelFormat, pixelType,
+				data);
+		}
+		
 		public void Clear() {
 			OGL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 		}
 		
+		public void PushViewport() {
+			viewports.AddFirst(viewports.First.Value);
+		}
+		public void PopViewport() {
+			viewports.RemoveFirst();
+			OGL.Viewport(viewports.First.Value);
+		}
 		public void SetViewport(System.Drawing.Rectangle rect) {
+			viewports.First.Value = rect;
 			OGL.Viewport(rect);
 		}
 		public void SetViewport(int x, int y, int width, int height) {
-			OGL.Viewport(x, y, width, height);
+			SetViewport(new System.Drawing.Rectangle(x, y, width, height));
 		}
 		
 		public void RunProgram(GLProgram program, IEnumerable<Tuple<Object, String>> parameters,
@@ -136,7 +194,7 @@ namespace Pi.ThreeD.GL
 			
 			Cleanup(parameters);
 			
-			GLHelpers.CheckForErrors();
+			CheckForErrorsIfDebugging();
 		}
 		
 		public void RunProgram(GLProgram program, IEnumerable<Tuple<Object, String>> parameters,
@@ -152,7 +210,7 @@ namespace Pi.ThreeD.GL
 			
 			Cleanup(parameters);
 			
-			GLHelpers.CheckForErrors();
+			CheckForErrorsIfDebugging();
 		}
 		
 		private int PassParameters(GLProgram program, IEnumerable<Tuple<Object, String>> parameters) {
@@ -171,7 +229,7 @@ namespace Pi.ThreeD.GL
 				} else {
 					PassUniform(param.Item1, program.GetUniformLocation(param.Item2));
 				}
-				GLHelpers.CheckForErrors();
+				CheckForErrorsIfDebugging();
 			}
 			return bufferLength;
 		}
@@ -216,13 +274,14 @@ namespace Pi.ThreeD.GL
 		private T AddToDisposables<T>(T item)
 			where T : IDisposable
 		{
+			//it is important to add new objects at the head, to ensure that the dispose order
+			//is the inverted creation order
 			toDispose.AddFirst(new WeakReference(item));
 			return item;
 		}
 		
 		public void Dispose() {
 			Dispose (true);
-			GC.SuppressFinalize(this);
 		}
 		
 		private void Dispose(bool disposing) {

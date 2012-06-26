@@ -67,7 +67,6 @@ namespace Pi.ThreeD.GL
 		
 		public void Dispose() {
 			Dispose(true);
-			GC.SuppressFinalize(this);
 		}
 		
 		protected void Dispose(bool disposing) {

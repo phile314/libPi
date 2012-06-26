@@ -37,6 +37,16 @@ namespace Pi.ThreeD.GL
 		{
 		}
 		
+		/// <summary>
+		/// Uploads the given indices. Is just an alias for UploadVertices.
+		/// </summary>
+		/// <param name='indices'>
+		/// The indices.
+		/// </param>
+		public void UploadIndices(uint[] indices) {
+			UploadVertices(indices);
+		}
+		
 		internal void BindAndDraw(BeginMode drawMode) {
 			OGL.BindBuffer(target, bufferId);
 			OGL.DrawElements(drawMode, Length, DrawElementsType.UnsignedInt, 0);

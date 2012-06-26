@@ -95,13 +95,14 @@ namespace Pi.ThreeD.GL
 		/// <param name='pixelType'>
 		/// Pixel type.
 		/// </param>
-		public void UploadImage(byte[] image, int imageWidth, int imageHeight, OpenTK.Graphics.OpenGL.PixelInternalFormat internalFormat,
+		public void UploadImage<T>(T[] image, int imageWidth, int imageHeight, OpenTK.Graphics.OpenGL.PixelInternalFormat internalFormat,
 			OpenTK.Graphics.OpenGL.PixelFormat pixelFormat,
-			OpenTK.Graphics.OpenGL.PixelType pixelType) {
+			OpenTK.Graphics.OpenGL.PixelType pixelType)
+		where T : struct {
 			this.pixelFormat = pixelFormat;
 			this.pixelType = pixelType;
 			PrepareForUpload();
-			OGL.TexImage2D(target, 0, internalFormat, imageWidth, imageHeight, 0, pixelFormat, pixelType, image);
+			OGL.TexImage2D<T>(target, 0, internalFormat, imageWidth, imageHeight, 0, pixelFormat, pixelType, image);
 		}
 		/// <summary>
 		/// Uploads a image to a texture unit. If you update an existing image, UploadSubImage should be used as it is faster.
@@ -151,7 +152,8 @@ namespace Pi.ThreeD.GL
 		/// <param name='imageHeight'>
 		/// Image height.
 		/// </param>
-		public void UploadSubImage(byte[] subImage, int offsetX, int offsetY, int imageWidth, int imageHeight) {
+		public void UploadSubImage<T>(T[] subImage, int offsetX, int offsetY, int imageWidth, int imageHeight)
+		where T : struct {
 			PrepareForUpload();
 			OGL.TexSubImage2D(target, 0, offsetX, offsetY, imageWidth, imageHeight, pixelFormat, pixelType, subImage);
 		}
@@ -193,7 +195,6 @@ namespace Pi.ThreeD.GL
 		
 		public void Dispose() {
 			Dispose(true);
-			GC.SuppressFinalize(this);
 		}
 		
 		protected void Dispose(bool disposing) {

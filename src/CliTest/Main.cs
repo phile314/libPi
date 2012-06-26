@@ -6,7 +6,7 @@ namespace CliTest
 	{
 		public static void Main (string[] args)
 		{
-			using(TestWindow w = new TestWindow()) {
+			using(FboTestWindow w = new FboTestWindow()) {
 				w.Run(60);
 			}
 		}

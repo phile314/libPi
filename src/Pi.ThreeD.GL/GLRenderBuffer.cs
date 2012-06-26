@@ -1,5 +1,5 @@
 // 
-// GLGraphics.cs
+// GLRenderBuffer.cs
 //  
 // Author:
 //       Philipp Hausmann <philipp_code@314.ch>
@@ -23,28 +23,61 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-
 using System;
-using OpenTK.Graphics;
+
+using OpenTK;
+using OpenTK.Graphics.OpenGL;
+using OGL = OpenTK.Graphics.OpenGL.GL;
 
 namespace Pi.ThreeD.GL
 {
-	public static class GLGraphics
+	public class GLRenderBuffer : IDisposable
 	{
-		
-		public static GLGraphicsContext NewContext ()
+		private readonly int renderBufferId;
+		private readonly int width, height;
+		private bool isDisposed;
+		internal GLRenderBuffer (int width, int height, RenderbufferStorage storage, GLGraphicsContext context)
 		{
-			return new GLGraphicsContext();
+			this.width = width;
+			this.height = height;
+			
+			
+			OGL.GenRenderbuffers(1, out renderBufferId);
+			context.CheckForErrorsIfDebugging();
+			
+			OGL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, renderBufferId);
+			OGL.RenderbufferStorage(RenderbufferTarget.Renderbuffer,
+				storage, width, height);
+			OGL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, 0);
+			
+			context.CheckForErrorsIfDebugging();
 		}
 		
-		public static GLGraphicsContext NewContext (IGraphicsContext tkContext)
-		{
-			return NewContext (tkContext, false);
+		
+		public int Id {
+			get { return renderBufferId; }
 		}
 		
-		public static GLGraphicsContext NewContext (IGraphicsContext tkContext, bool debug)
+		public int Width {
+			get { return width; }
+		}
+		
+		public int Height {
+			get { return height; }
+		}
+		public void Dispose ()
 		{
-			return new GLGraphicsContext(tkContext, debug);
+			Dispose (true);
+		}
+		
+		private void Dispose(bool disposing) {
+			if(!isDisposed) {
+				if(disposing) {
+					int id = renderBufferId;
+					OGL.DeleteRenderbuffers(1, ref id);
+				}
+				isDisposed = true;
+			}
 		}
 	}
 }

@@ -16,7 +16,7 @@ using Pi.Data;
 
 namespace CliTest
 {
-	public class TestWindow : GameWindow
+	public class FboTestWindow : GameWindow
 	{	
 		private readonly Bitmap sourceImage;
 		
@@ -29,10 +29,13 @@ namespace CliTest
 		private ImmutableList<Tuple<Object, String>> paramSpec;
 		
 		private Matrix4 modelViewMatrix, projectionMatrix;
+		private GLFrameBuffer fb;
+		private GLRenderBuffer rc, rd;
+		bool isFirst = true;
 		
 		
-		public TestWindow ()
-			: base(720, 720, GraphicsMode.Default, "Virtual Pan&Zoom", GameWindowFlags.Default, DisplayDevice.Default, 4, 0, GraphicsContextFlags.Default)
+		public FboTestWindow ()
+			: base(720, 720, GraphicsMode.Default, "Virtual Pan&Zoom", GameWindowFlags.Default, DisplayDevice.Default, 4, 0, GraphicsContextFlags.Debug)
 		{
 			this.VSync = VSyncMode.On;
 			
@@ -48,6 +51,7 @@ namespace CliTest
 		protected override void OnLoad (EventArgs e)
 		{
 			base.OnLoad (e);
+			Context.ErrorChecking = true;
 			
 			String version = GL.GetString(StringName.Version);
 			Console.WriteLine("GL version: " + version);
@@ -69,6 +73,15 @@ namespace CliTest
 				Tuple.Create<object,String>(textureCoords, "a_texPos"),
 				Tuple.Create<object,String>(texture0, "u_texture0"),
 				Tuple.Create<object,String>(texture1, "u_texture1")});
+			
+			rc = context.NewRenderBuffer(1000, 1000, RenderbufferStorage.Rgb8);
+			rd = context.NewRenderBuffer(1000, 1000, RenderbufferStorage.DepthComponent16);
+			
+			
+			
+			fb = context.NewFrameBuffer(rc, rd, FramebufferTarget.DrawFramebuffer);
+			
+			
 		}
 		
 		private void CreateAndFillBuffers() {
@@ -107,17 +120,32 @@ namespace CliTest
 		
 		protected override void OnRenderFrame (FrameEventArgs e)
 		{
+			
 			base.OnRenderFrame (e);
 			
-			context.Clear();
+			if(isFirst) {
 			
-			Matrix4 mvp = modelViewMatrix * projectionMatrix;
-			//with DrawArray
-			//context.RunProgram(program, paramSpec.Cons(Tuple.Create<object,String>(mvp, "u_mvpMatrix")), BeginMode.TriangleStrip);
-			//with DrawElements
-			context.RunProgram(program, paramSpec.Cons(Tuple.Create<object,String>(mvp, "u_mvpMatrix")), indices, BeginMode.TriangleStrip);
+				fb.Activate();
+				
+				context.Clear();
+				
+				Matrix4 mvp = modelViewMatrix * projectionMatrix;
+				//with DrawArray
+				//context.RunProgram(program, paramSpec.Cons(Tuple.Create<object,String>(mvp, "u_mvpMatrix")), BeginMode.TriangleStrip);
+				//with DrawElements
+				context.RunProgram(program, paramSpec.Cons(Tuple.Create<object,String>(mvp, "u_mvpMatrix")), indices, BeginMode.TriangleStrip);
+				
+				byte[] img = new byte[1000 * 1000 * 4];
+				context.ReadPixels(0, 0, 1000, 1000, PixelFormat.Bgra, PixelType.UnsignedByte,
+					img);
+				
+				fb.Deactivate();
+				
+				Exit();
+				
+			}
+			isFirst = false;
 			
-			SwapBuffers();
 		}
 		
 	}

@@ -39,14 +39,6 @@ namespace Pi.ThreeD.GL
 		public static TextureUnit IdToTextureUnit(int id) {
 			return (TextureUnit)(33984 + id);
 		}
-		
-		public static void CheckForErrors() {
-			ErrorCode err = OGL.GetError();
-			if(err != ErrorCode.NoError) {
-				throw new Exception(String.Format("GL error: {0}", err));
-				
-			}
-		}
 	}
 }
 
