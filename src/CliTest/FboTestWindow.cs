@@ -75,11 +75,11 @@ namespace CliTest
 				Tuple.Create<object,String>(texture1, "u_texture1")});
 			
 			rc = context.NewRenderBuffer(1000, 1000, RenderbufferStorage.Rgb8);
-			rd = context.NewRenderBuffer(1000, 1000, RenderbufferStorage.DepthComponent16);
+			rd = context.NewRenderBuffer(1000, 1000, RenderbufferStorage.DepthComponent24);
 			
 			
 			
-			fb = context.NewFrameBuffer(rc, rd, FramebufferTarget.DrawFramebuffer);
+			fb = context.NewFrameBuffer(rc, rd, FramebufferTarget.Framebuffer);
 			
 			
 		}
