@@ -63,6 +63,18 @@ namespace Pi.Data.Concurrent
 			return Interlocked.Exchange(ref this.value, newValue);
 		}
 		
+		public long Decrement() {
+			#pragma warning disable 0420
+			return Interlocked.Decrement(ref this.value);
+			#pragma warning restore 0420
+		}
+		
+		public long Increment() {
+			#pragma warning disable 0420
+			return Interlocked.Increment(ref this.value);
+			#pragma warning restore 0420
+		}
+		
 		public long Get() {
 			return Interlocked.Read(ref value);
 		}

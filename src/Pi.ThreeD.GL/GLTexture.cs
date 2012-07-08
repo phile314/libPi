@@ -47,6 +47,8 @@ namespace Pi.ThreeD.GL
 		private OpenTK.Graphics.OpenGL.PixelFormat pixelFormat;
 		private OpenTK.Graphics.OpenGL.PixelType pixelType;
 		
+		private int width, height;
+		
 		internal GLTexture (TextureUnit unit, Action<GLTexture> disposing, TextureMinFilter minFilter, TextureMagFilter magFilter, TextureWrapMode wrapS, TextureWrapMode wrapT)
 		{
 			this.minFilter = minFilter;
@@ -69,6 +71,8 @@ namespace Pi.ThreeD.GL
 			this.pixelFormat = OpenTK.Graphics.OpenGL.PixelFormat.Bgr;
 			this.pixelType = OpenTK.Graphics.OpenGL.PixelType.UnsignedByte;
 			PrepareForUpload();
+			this.width = image.Width;
+			this.height = image.Height;
 			BitmapData data = image.LockBits(new Rectangle(0, 0, image.Width, image.Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
 			OGL.TexImage2D(target, 0, internalFormat, image.Width, image.Height, 0, pixelFormat, pixelType, data.Scan0);
 			image.UnlockBits(data);
@@ -101,6 +105,8 @@ namespace Pi.ThreeD.GL
 		where T : struct {
 			this.pixelFormat = pixelFormat;
 			this.pixelType = pixelType;
+			this.width = imageWidth;
+			this.height = imageHeight;
 			PrepareForUpload();
 			OGL.TexImage2D<T>(target, 0, internalFormat, imageWidth, imageHeight, 0, pixelFormat, pixelType, image);
 		}
@@ -130,6 +136,8 @@ namespace Pi.ThreeD.GL
 			OpenTK.Graphics.OpenGL.PixelType pixelType) {
 			this.pixelFormat = pixelFormat;
 			this.pixelType = pixelType;
+			this.width = imageWidth;
+			this.height = imageHeight;
 			PrepareForUpload();
 			OGL.TexImage2D(target, 0, internalFormat, imageWidth, imageHeight, 0, pixelFormat, pixelType, image);
 		}
@@ -191,7 +199,9 @@ namespace Pi.ThreeD.GL
 		internal TextureUnit Unit {
 			get { return unit; }
 		}
-			
+		
+		public int Width { get { return width; } }
+		public int Height { get { return height; } }
 		
 		public void Dispose() {
 			Dispose(true);
