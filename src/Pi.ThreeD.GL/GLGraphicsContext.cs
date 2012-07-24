@@ -41,6 +41,8 @@ namespace Pi.ThreeD.GL
 		private LinkedList<WeakReference> toDispose = new System.Collections.Generic.LinkedList<WeakReference>();
 		private Stack<TextureUnit> freeUnits = new Stack<TextureUnit>();
 		private readonly bool debug;
+		private readonly float maxAnisotropy;
+		private float defaultAnisotropy;
 		
 		internal GLGraphicsContext ()
 		{
@@ -55,6 +57,8 @@ namespace Pi.ThreeD.GL
 		{
 			this.debug = debug;
 			Initialize();
+			OGL.GetFloat((GetPName)ExtTextureFilterAnisotropic.MaxTextureMaxAnisotropyExt, out maxAnisotropy);
+			defaultAnisotropy = maxAnisotropy;
 		}
 		
 		private void Initialize() {
@@ -99,17 +103,28 @@ namespace Pi.ThreeD.GL
 		public GLTexture NewEmptyTexture(TextureMinFilter minFilter, TextureMagFilter magFilter, TextureWrapMode wrapS, TextureWrapMode wrapT,
 			int width, int height,
 			PixelFormat pixelFormat, PixelType pixelType, PixelInternalFormat internalFormat) {
-			GLTexture tex = NewTexture(minFilter, magFilter, wrapS, wrapT);
+			return NewEmptyTexture(minFilter, magFilter, wrapS, wrapT,
+				width, height,
+				pixelFormat, pixelType, PixelInternalFormat.Four, DefaultAnisotropy);
+		}
+		public GLTexture NewEmptyTexture(TextureMinFilter minFilter, TextureMagFilter magFilter, TextureWrapMode wrapS, TextureWrapMode wrapT,
+			int width, int height,
+			PixelFormat pixelFormat, PixelType pixelType, PixelInternalFormat internalFormat, float anisotropy) {
+			GLTexture tex = NewTexture(minFilter, magFilter, wrapS, wrapT, anisotropy);
 			byte[] empty = new byte[width * height * 4];
 			tex.UploadImage(empty, width, height, internalFormat, pixelFormat, pixelType);
 			return tex;
 		}
 		
-		public GLTexture NewTexture (TextureMinFilter minFilter, TextureMagFilter magFilter, TextureWrapMode wrapS, TextureWrapMode wrapT)
+		public GLTexture NewTexture (TextureMinFilter minFilter, TextureMagFilter magFilter, TextureWrapMode wrapS, TextureWrapMode wrapT) {
+			return NewTexture (minFilter, magFilter, wrapS, wrapT, defaultAnisotropy);
+		}
+		
+		public GLTexture NewTexture (TextureMinFilter minFilter, TextureMagFilter magFilter, TextureWrapMode wrapS, TextureWrapMode wrapT, float anisotropy)
 		{
 			TextureUnit texUnit = freeUnits.Pop();
 			return AddToDisposables(new GLTexture(texUnit, (_ => freeUnits.Push(texUnit)),
-				minFilter, magFilter, wrapS, wrapT));
+				minFilter, magFilter, wrapS, wrapT, anisotropy));
 		}
 		
 		public GLProgram NewProgram(String vertexShader, String fragmentShader) {
@@ -211,6 +226,14 @@ namespace Pi.ThreeD.GL
 			Cleanup(parameters);
 			
 			CheckForErrorsIfDebugging();
+		}
+		
+		public float MaxAnisotropy {
+			get { return maxAnisotropy; }
+		}
+		public float DefaultAnisotropy {
+			get { return defaultAnisotropy; }
+			set { defaultAnisotropy = value; }
 		}
 		
 		private int PassParameters(GLProgram program, IEnumerable<Tuple<Object, String>> parameters) {

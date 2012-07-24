@@ -49,7 +49,8 @@ namespace Pi.ThreeD.GL
 		
 		private int width, height;
 		
-		internal GLTexture (TextureUnit unit, Action<GLTexture> disposing, TextureMinFilter minFilter, TextureMagFilter magFilter, TextureWrapMode wrapS, TextureWrapMode wrapT)
+		internal GLTexture (TextureUnit unit, Action<GLTexture> disposing, TextureMinFilter minFilter, TextureMagFilter magFilter, TextureWrapMode wrapS, TextureWrapMode wrapT,
+		                    float anisotropy)
 		{
 			this.minFilter = minFilter;
 			this.magFilter = magFilter;
@@ -61,6 +62,8 @@ namespace Pi.ThreeD.GL
 			OGL.ActiveTexture(unit);
 			OGL.GenTextures(1, out textureId);
 			OGL.BindTexture(target, textureId);
+			OGL.TexParameter(target, (TextureParameterName)ExtTextureFilterAnisotropic.TextureMaxAnisotropyExt,
+			                 anisotropy);
 		}
 		
 		public void UploadImage(Bitmap image) {
