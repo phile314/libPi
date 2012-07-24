@@ -29,6 +29,7 @@ using Pi.ThreeD.GL.Internal;
 using OpenTK.Graphics.OpenGL;
 using OGL = OpenTK.Graphics.OpenGL.GL;
 using log4net;
+using System.Collections.Generic;
 
 namespace Pi.ThreeD.GL
 {
@@ -40,6 +41,10 @@ namespace Pi.ThreeD.GL
 		private GLVertexShader vertexShader;
 		private GLFragmentShader fragmentShader;
 		private int programId;
+		
+		private IDictionary<String,int> uniformLocations = new Dictionary<String,int>();
+		private IDictionary<String,int> attributeLocations = new Dictionary<String,int>();
+		
 		internal GLProgram (String vertexShader, String fragmentShader)
 		{
 			this.vertexShader = new GLVertexShader(vertexShader);
@@ -77,14 +82,26 @@ namespace Pi.ThreeD.GL
 		}
 		
 		internal int GetUniformLocation(String uniformName) {
-			int loc = OGL.GetUniformLocation(programId, uniformName);
+			int loc;
+			if(uniformLocations.ContainsKey(uniformName)) {
+				loc = uniformLocations[uniformName];
+			} else {
+				loc = OGL.GetUniformLocation(programId, uniformName);
+				uniformLocations[uniformName] = loc;
+			}
 			if(loc == -1) log.Debug(String.Format("No uniform with name {0} found.", uniformName));
 			return loc;
 		}
 		
 		internal int GetAttributeLocation(String attributeName) {
-			int loc = OGL.GetAttribLocation(programId, attributeName);
-				if(loc == -1) log.Debug(String.Format("No attribute with name {0} found.", attributeName));
+			int loc;
+			if(attributeLocations.ContainsKey(attributeName)) {
+				loc = attributeLocations[attributeName];
+			} else {
+				loc = OGL.GetAttribLocation(programId, attributeName);
+				attributeLocations[attributeName] = loc;
+			}
+			if(loc == -1) log.Debug(String.Format("No attribute with name {0} found.", attributeName));
 			return loc;
 		}
 		

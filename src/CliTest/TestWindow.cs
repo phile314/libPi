@@ -32,7 +32,7 @@ namespace CliTest
 		
 		
 		public TestWindow ()
-			: base(720, 720, GraphicsMode.Default, "Virtual Pan&Zoom", GameWindowFlags.Default, DisplayDevice.Default, 4, 0, GraphicsContextFlags.Default)
+			: base(720, 720, GraphicsMode.Default, "Virtual Pan&Zoom", GameWindowFlags.Default, DisplayDevice.Default, 1, 4, GraphicsContextFlags.Default)
 		{
 			this.VSync = VSyncMode.On;
 			

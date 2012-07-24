@@ -36,9 +36,7 @@ namespace Pi.ThreeD.GL
 		
 		internal GLGenericVertexBuffer (BufferTarget target, VertexAttribPointerType glType, int size)
 			: base(target, glType, System.Runtime.InteropServices.Marshal.SizeOf(default(T)), size)
-		{
-			OGL.GenBuffers(1, out bufferId);
-		}
+		{}
 		
 		public void UploadVertices(T[] vertices) {
 			this.length = vertices.Length;
