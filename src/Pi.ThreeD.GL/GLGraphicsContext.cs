@@ -34,7 +34,7 @@ using OGL = OpenTK.Graphics.OpenGL.GL;
 
 namespace Pi.ThreeD.GL
 {
-	public class GLGraphicsContext
+	public class GLGraphicsContext : IDisposable
 	{
 		private bool isDisposed;
 		private LinkedList<System.Drawing.Rectangle> viewports = new LinkedList<System.Drawing.Rectangle>();

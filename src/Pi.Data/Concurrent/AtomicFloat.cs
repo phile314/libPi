@@ -51,13 +51,14 @@ namespace Pi.Data.Concurrent
 		/// <param name='f'>
 		/// The update function.
 		/// </param>
-		public void Update(Func<float, float> f) {
+		public float Update(Func<float, float> f) {
 			float initial, newValue;
 			do {
 				initial = value;
 				newValue = f(initial);
 				
 			} while (CompareExchange(newValue, initial) != initial);
+			return newValue;
 		}
 
 		public float Exchange(float newValue)
