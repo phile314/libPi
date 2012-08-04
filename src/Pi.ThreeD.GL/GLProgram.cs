@@ -30,6 +30,8 @@ using OpenTK.Graphics.OpenGL;
 using OGL = OpenTK.Graphics.OpenGL.GL;
 using log4net;
 using System.Collections.Generic;
+using OpenTK;
+using Pi.Data;
 
 namespace Pi.ThreeD.GL
 {
@@ -38,15 +40,18 @@ namespace Pi.ThreeD.GL
 		private readonly static ILog log = LogManager.GetLogger(typeof(GLProgram));
 		
 		private bool isDisposed;
-		private GLVertexShader vertexShader;
-		private GLFragmentShader fragmentShader;
-		private int programId;
+		private readonly GLVertexShader vertexShader;
+		private readonly GLFragmentShader fragmentShader;
+		private readonly int programId;
+		
+		private readonly GLGraphicsContext context;
 		
 		private IDictionary<String,int> uniformLocations = new Dictionary<String,int>();
 		private IDictionary<String,int> attributeLocations = new Dictionary<String,int>();
 		
-		internal GLProgram (String vertexShader, String fragmentShader)
+		internal GLProgram (GLGraphicsContext context, String vertexShader, String fragmentShader)
 		{
+			this.context = context;
 			this.vertexShader = new GLVertexShader(vertexShader);
 			this.fragmentShader = new GLFragmentShader(fragmentShader);
 			
@@ -105,6 +110,151 @@ namespace Pi.ThreeD.GL
 			return loc;
 		}
 		
+		public void Run(IEnumerable<Tuple<Object, String>> parameters,
+			BeginMode drawMode) {
+			
+			Use ();
+			
+			int bufferLength = PassParameters(parameters);
+			if(bufferLength == -1) {
+				throw new Exception("There are no buffers to draw!");
+			}
+			
+			OGL.DrawArrays(drawMode, 0, bufferLength);
+			
+			Cleanup(parameters);
+			
+			context.CheckForErrorsIfDebugging();
+		}
+		
+		public void Run(IEnumerable<Tuple<Object, String>> parameters,
+			GLIndicesBuffer indicesBuffer,
+			BeginMode drawMode) {
+			
+			Use();
+			
+			PassParameters(parameters);
+			
+			indicesBuffer.BindAndDraw(drawMode);
+			indicesBuffer.Disable();			
+			
+			Cleanup(parameters);
+			
+			context.CheckForErrorsIfDebugging();
+		}
+		
+		public void Run(IEnumerable<MutableTuple<Object, String>> parameters,
+			BeginMode drawMode) {
+			
+			Use ();
+			
+			int bufferLength = PassParameters(parameters);
+			if(bufferLength == -1) {
+				throw new Exception("There are no buffers to draw!");
+			}
+			
+			OGL.DrawArrays(drawMode, 0, bufferLength);
+			
+			Cleanup(parameters);
+			
+			context.CheckForErrorsIfDebugging();
+		}
+		
+		public void Run(IEnumerable<MutableTuple<Object, String>> parameters,
+			GLIndicesBuffer indicesBuffer,
+			BeginMode drawMode) {
+			
+			Use();
+			
+			PassParameters(parameters);
+			
+			indicesBuffer.BindAndDraw(drawMode);
+			indicesBuffer.Disable();			
+			
+			Cleanup(parameters);
+			
+			context.CheckForErrorsIfDebugging();
+		}
+		
+		private int PassParameters(IEnumerable<Tuple<Object, String>> parameters) {
+			int bufferLength = -1;
+			foreach(Tuple<Object, String> param in parameters) {
+				bufferLength = PassParameter(param.Item2, param.Item1, bufferLength);
+			}
+			return bufferLength;
+		}
+		
+		private int PassParameters(IEnumerable<MutableTuple<Object, String>> parameters) {
+			int bufferLength = -1;
+			foreach(MutableTuple<Object, String> param in parameters) {
+				bufferLength = PassParameter(param.Item2, param.Item1, bufferLength);
+			}
+			return bufferLength;
+		}
+		
+		private int PassParameter(String paramName, Object paramValue, int bufferLength) {
+			if(paramValue is GLVertexBuffer) {
+				((GLVertexBuffer)paramValue).BindAndEnable(GetAttributeLocation(paramName));
+				int length = ((GLVertexBuffer)paramValue).Length;
+				if(bufferLength != length) {
+					if(bufferLength == -1) {
+						bufferLength = length;
+					} else {
+						throw new Exception("All attribute buffers must have the same length.");
+					}
+				}
+			} else {
+				PassUniform(paramValue, GetUniformLocation(paramName));
+			}
+			context.CheckForErrorsIfDebugging();
+			return bufferLength;
+		}
+		
+		private void Cleanup(IEnumerable<Tuple<Object, String>> parameters) {
+			foreach(Tuple<Object, String> param in parameters) {
+				if(param.Item1 is GLVertexBuffer) {
+					((GLVertexBuffer)param.Item1).Disable();
+				}
+			}
+		}
+		
+		private void Cleanup(IEnumerable<MutableTuple<Object, String>> parameters) {
+			foreach(MutableTuple<Object, String> param in parameters) {
+				if(param.Item1 is GLVertexBuffer) {
+					((GLVertexBuffer)param.Item1).Disable();
+				}
+			}
+		}
+		
+		private void PassUniform(Object data, int uniformLoc) {
+			if(data is GLTexture) {
+				OGL.Uniform1(uniformLoc, GLHelpers.TextureUnitToId(((GLTexture)data).Unit));
+			} else if(data is Matrix3) {
+				Matrix3 temp = (Matrix3)data;
+				unsafe {
+					OGL.UniformMatrix3(uniformLoc, 1, false, &temp.Row0.X);
+				}
+			} else if(data is Matrix4) {
+				Matrix4 temp = (Matrix4)data;
+				OGL.UniformMatrix4(uniformLoc, false, ref temp);
+			} else if(data is Vector2) {
+				Vector2 temp = (Vector2)data;
+				OGL.Uniform2(uniformLoc, ref temp);
+			} else if(data is Vector3) {
+				Vector3 temp = (Vector3)data;
+				OGL.Uniform3(uniformLoc, ref temp);
+			} else if(data is Vector4) {
+				Vector4 temp = (Vector4)data;
+				OGL.Uniform4(uniformLoc, ref temp);
+			} else if(data is float) {
+				OGL.Uniform1(uniformLoc, (float)data);
+			} else if(data is int) {
+				OGL.Uniform1(uniformLoc, (int)data);
+			} else {
+				throw new NotSupportedException();
+			}
+		}
+		
 		
 		public void Dispose() {
 			Dispose(true);
@@ -119,8 +269,6 @@ namespace Pi.ThreeD.GL
 					fragmentShader.Dispose();
 					OGL.DeleteProgram(programId);
 				}
-				vertexShader = null;
-				fragmentShader = null;
 				isDisposed = true;
 			}
 		}

@@ -128,7 +128,7 @@ namespace Pi.ThreeD.GL
 		}
 		
 		public GLProgram NewProgram(String vertexShader, String fragmentShader) {
-			return AddToDisposables(new GLProgram(vertexShader, fragmentShader));
+			return AddToDisposables(new GLProgram(this, vertexShader, fragmentShader));
 		}
 		
 		public GLProgram NewProgramFromFiles(String vertexShaderFile, String fragmentShaderFile) {
@@ -195,103 +195,12 @@ namespace Pi.ThreeD.GL
 			SetViewport(new System.Drawing.Rectangle(x, y, width, height));
 		}
 		
-		public void RunProgram(GLProgram program, IEnumerable<Tuple<Object, String>> parameters,
-			BeginMode drawMode) {
-			
-			program.Use();
-			
-			int bufferLength = PassParameters(program, parameters);
-			if(bufferLength == -1) {
-				throw new Exception("There are no buffers to draw!");
-			}
-			
-			OGL.DrawArrays(drawMode, 0, bufferLength);
-			
-			Cleanup(parameters);
-			
-			CheckForErrorsIfDebugging();
-		}
-		
-		public void RunProgram(GLProgram program, IEnumerable<Tuple<Object, String>> parameters,
-			GLIndicesBuffer indicesBuffer,
-			BeginMode drawMode) {
-			
-			program.Use();
-			
-			PassParameters(program, parameters);
-			
-			indicesBuffer.BindAndDraw(drawMode);
-			indicesBuffer.Disable();			
-			
-			Cleanup(parameters);
-			
-			CheckForErrorsIfDebugging();
-		}
-		
 		public float MaxAnisotropy {
 			get { return maxAnisotropy; }
 		}
 		public float DefaultAnisotropy {
 			get { return defaultAnisotropy; }
 			set { defaultAnisotropy = value; }
-		}
-		
-		private int PassParameters(GLProgram program, IEnumerable<Tuple<Object, String>> parameters) {
-			int bufferLength = -1;
-			foreach(Tuple<Object, String> param in parameters) {
-				if(param.Item1 is GLVertexBuffer) {
-					((GLVertexBuffer)param.Item1).BindAndEnable(program.GetAttributeLocation(param.Item2));
-					int length = ((GLVertexBuffer)param.Item1).Length;
-					if(bufferLength != length) {
-						if(bufferLength == -1) {
-							bufferLength = length;
-						} else {
-							throw new Exception("All attribute buffers must have the same length.");
-						}
-					}
-				} else {
-					PassUniform(param.Item1, program.GetUniformLocation(param.Item2));
-				}
-				CheckForErrorsIfDebugging();
-			}
-			return bufferLength;
-		}
-		
-		private void Cleanup(IEnumerable<Tuple<Object, String>> parameters) {
-			foreach(Tuple<Object, String> param in parameters) {
-				if(param.Item1 is GLVertexBuffer) {
-					((GLVertexBuffer)param.Item1).Disable();
-				}
-			}
-		}
-		
-		private void PassUniform(Object data, int uniformLoc) {
-			if(data is GLTexture) {
-				OGL.Uniform1(uniformLoc, GLHelpers.TextureUnitToId(((GLTexture)data).Unit));
-			} else if(data is Matrix3) {
-				Matrix3 temp = (Matrix3)data;
-				unsafe {
-					OGL.UniformMatrix3(uniformLoc, 1, false, &temp.Row0.X);
-				}
-			} else if(data is Matrix4) {
-				Matrix4 temp = (Matrix4)data;
-				OGL.UniformMatrix4(uniformLoc, false, ref temp);
-			} else if(data is Vector2) {
-				Vector2 temp = (Vector2)data;
-				OGL.Uniform2(uniformLoc, ref temp);
-			} else if(data is Vector3) {
-				Vector3 temp = (Vector3)data;
-				OGL.Uniform3(uniformLoc, ref temp);
-			} else if(data is Vector4) {
-				Vector4 temp = (Vector4)data;
-				OGL.Uniform4(uniformLoc, ref temp);
-			} else if(data is float) {
-				OGL.Uniform1(uniformLoc, (float)data);
-			} else if(data is int) {
-				OGL.Uniform1(uniformLoc, (int)data);
-			} else {
-				throw new NotSupportedException();
-			}
 		}
 		
 		private T AddToDisposables<T>(T item)

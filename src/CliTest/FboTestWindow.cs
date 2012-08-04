@@ -131,9 +131,9 @@ namespace CliTest
 				
 				Matrix4 mvp = modelViewMatrix * projectionMatrix;
 				//with DrawArray
-				//context.RunProgram(program, paramSpec.Cons(Tuple.Create<object,String>(mvp, "u_mvpMatrix")), BeginMode.TriangleStrip);
+				//program.Run(paramSpec.Cons(Tuple.Create<object,String>(mvp, "u_mvpMatrix")), BeginMode.TriangleStrip);
 				//with DrawElements
-				context.RunProgram(program, paramSpec.Cons(Tuple.Create<object,String>(mvp, "u_mvpMatrix")), indices, BeginMode.TriangleStrip);
+				program.Run(paramSpec.Cons(Tuple.Create<object,String>(mvp, "u_mvpMatrix")), indices, BeginMode.TriangleStrip);
 				
 				byte[] img = new byte[1000 * 1000 * 4];
 				context.ReadPixels(0, 0, 1000, 1000, PixelFormat.Bgra, PixelType.UnsignedByte,

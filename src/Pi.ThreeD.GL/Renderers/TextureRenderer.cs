@@ -111,8 +111,7 @@ void main() {
 		
 		public void Render (Matrix4 mvpMatrix)
 		{
-			context.RunProgram(prog,
-				paramSpec.Cons(Tuple.Create<Object, String>(mvpMatrix, "u_mvpMatrix")),
+			prog.Run(paramSpec.Cons(Tuple.Create<Object, String>(mvpMatrix, "u_mvpMatrix")),
 				OpenTK.Graphics.OpenGL.BeginMode.TriangleStrip);
 		}
 		

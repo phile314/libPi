@@ -115,7 +115,7 @@ namespace CliTest
 			//with DrawArray
 			//context.RunProgram(program, paramSpec.Cons(Tuple.Create<object,String>(mvp, "u_mvpMatrix")), BeginMode.TriangleStrip);
 			//with DrawElements
-			context.RunProgram(program, paramSpec.Cons(Tuple.Create<object,String>(mvp, "u_mvpMatrix")), indices, BeginMode.TriangleStrip);
+			program.Run (paramSpec.Cons(Tuple.Create<object,String>(mvp, "u_mvpMatrix")), indices, BeginMode.TriangleStrip);
 			
 			SwapBuffers();
 		}
