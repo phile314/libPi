@@ -71,7 +71,7 @@ void main() {
 		private GLGenericVertexBuffer<Vector3> vertices;
 		private GLGenericVertexBuffer<Vector2> texCoords;
 		private GLProgram prog;
-		private ImmutableList<Tuple<Object, String>> paramSpec;
+		private ImmutableList<Tuple<String, Object>> paramSpec;
 		private byte[] newImage;
 		private readonly int width, height;
 		private bool isDisposed;
@@ -102,16 +102,16 @@ void main() {
 			
 			prog = context.NewProgram(MVP_VERTEX_SHADER, TEXTURE_SHADER);
 			
-			paramSpec = ImmutableList<Tuple<Object, String>>.List(
-				Tuple.Create<Object, String>(vertices, "a_position"),
-				Tuple.Create<Object, String>(texCoords, "a_texPos"),
-				Tuple.Create<Object, String>(texture, "u_texture0"));
+			paramSpec = ImmutableList<Tuple<String, Object>>.List(
+				Tuple.Create<String, Object>("a_position", vertices),
+				Tuple.Create<String, Object>("a_texPos", texCoords),
+				Tuple.Create<String, Object>("u_texture0", texture));
 		}
 
 		
 		public void Render (Matrix4 mvpMatrix)
 		{
-			prog.Run(paramSpec.Cons(Tuple.Create<Object, String>(mvpMatrix, "u_mvpMatrix")),
+			prog.Run(paramSpec.Cons(Tuple.Create<String, Object>("u_mvpMatrix", mvpMatrix)),
 				OpenTK.Graphics.OpenGL.BeginMode.TriangleStrip);
 		}
 		

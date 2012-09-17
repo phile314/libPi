@@ -110,7 +110,7 @@ namespace Pi.ThreeD.GL
 			return loc;
 		}
 		
-		public void Run(IEnumerable<Tuple<Object, String>> parameters,
+		public void Run(IEnumerable<Tuple<String, Object>> parameters,
 			BeginMode drawMode) {
 			
 			Use ();
@@ -127,7 +127,7 @@ namespace Pi.ThreeD.GL
 			context.CheckForErrorsIfDebugging();
 		}
 		
-		public void Run(IEnumerable<Tuple<Object, String>> parameters,
+		public void Run(IEnumerable<Tuple<String, Object>> parameters,
 			GLIndicesBuffer indicesBuffer,
 			BeginMode drawMode) {
 			
@@ -143,7 +143,7 @@ namespace Pi.ThreeD.GL
 			context.CheckForErrorsIfDebugging();
 		}
 		
-		public void Run(IEnumerable<MutableTuple<Object, String>> parameters,
+		public void Run(IEnumerable<MutableTuple<String, Object>> parameters,
 			BeginMode drawMode) {
 			
 			Use ();
@@ -160,7 +160,7 @@ namespace Pi.ThreeD.GL
 			context.CheckForErrorsIfDebugging();
 		}
 		
-		public void Run(IEnumerable<MutableTuple<Object, String>> parameters,
+		public void Run(IEnumerable<MutableTuple<String, Object>> parameters,
 			GLIndicesBuffer indicesBuffer,
 			BeginMode drawMode) {
 			
@@ -176,18 +176,18 @@ namespace Pi.ThreeD.GL
 			context.CheckForErrorsIfDebugging();
 		}
 		
-		private int PassParameters(IEnumerable<Tuple<Object, String>> parameters) {
+		private int PassParameters(IEnumerable<Tuple<String, Object>> parameters) {
 			int bufferLength = -1;
-			foreach(Tuple<Object, String> param in parameters) {
-				bufferLength = PassParameter(param.Item2, param.Item1, bufferLength);
+			foreach(Tuple<String, Object> param in parameters) {
+				bufferLength = PassParameter(param.Item1, param.Item2, bufferLength);
 			}
 			return bufferLength;
 		}
 		
-		private int PassParameters(IEnumerable<MutableTuple<Object, String>> parameters) {
+		private int PassParameters(IEnumerable<MutableTuple<String, Object>> parameters) {
 			int bufferLength = -1;
-			foreach(MutableTuple<Object, String> param in parameters) {
-				bufferLength = PassParameter(param.Item2, param.Item1, bufferLength);
+			foreach(MutableTuple<String, Object> param in parameters) {
+				bufferLength = PassParameter(param.Item1, param.Item2, bufferLength);
 			}
 			return bufferLength;
 		}
@@ -210,18 +210,18 @@ namespace Pi.ThreeD.GL
 			return bufferLength;
 		}
 		
-		private void Cleanup(IEnumerable<Tuple<Object, String>> parameters) {
-			foreach(Tuple<Object, String> param in parameters) {
-				if(param.Item1 is GLVertexBuffer) {
-					((GLVertexBuffer)param.Item1).Disable();
+		private void Cleanup(IEnumerable<Tuple<String, Object>> parameters) {
+			foreach(Tuple<String, Object> param in parameters) {
+				if(param.Item2 is GLVertexBuffer) {
+					((GLVertexBuffer)param.Item2).Disable();
 				}
 			}
 		}
 		
-		private void Cleanup(IEnumerable<MutableTuple<Object, String>> parameters) {
-			foreach(MutableTuple<Object, String> param in parameters) {
-				if(param.Item1 is GLVertexBuffer) {
-					((GLVertexBuffer)param.Item1).Disable();
+		private void Cleanup(IEnumerable<MutableTuple<String, Object>> parameters) {
+			foreach(MutableTuple<String, Object> param in parameters) {
+				if(param.Item2 is GLVertexBuffer) {
+					((GLVertexBuffer)param.Item2).Disable();
 				}
 			}
 		}

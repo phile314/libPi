@@ -26,7 +26,7 @@ namespace CliTest
 		private GLGenericVertexBuffer<Vector2> textureCoords;
 		private GLIndicesBuffer indices;
 		private GLTexture texture0, texture1;
-		private ImmutableList<Tuple<Object, String>> paramSpec;
+		private ImmutableList<Tuple<String, Object>> paramSpec;
 		
 		private Matrix4 modelViewMatrix, projectionMatrix;
 		
@@ -64,11 +64,11 @@ namespace CliTest
 			texture1.UploadImage(new byte[4 * 4 * 4], 4, 4, PixelInternalFormat.Four, PixelFormat.Rgba, PixelType.UnsignedByte);
 			
 			CreateAndFillBuffers();
-			paramSpec = ImmutableList<Tuple<Object, String>>.List(new Tuple<Object, String>[] {
-				Tuple.Create<object,String>(positions, "a_position"),
-				Tuple.Create<object,String>(textureCoords, "a_texPos"),
-				Tuple.Create<object,String>(texture0, "u_texture0"),
-				Tuple.Create<object,String>(texture1, "u_texture1")});
+			paramSpec = ImmutableList<Tuple<String, Object>>.List(new Tuple<String, Object>[] {
+				Tuple.Create<String, Object>("a_position", positions),
+				Tuple.Create<String, Object>("a_texPos", textureCoords),
+				Tuple.Create<String, Object>("u_texture0", texture0),
+				Tuple.Create<String, Object>("u_texture1", texture1)});
 		}
 		
 		private void CreateAndFillBuffers() {
@@ -87,7 +87,7 @@ namespace CliTest
 			textureCoords = context.NewVertexBuffer<Vector2>(VertexAttribPointerType.Float, 2);
 			textureCoords.UploadVertices(aTexCoords);
 			indices = context.NewIndicesBuffer();
-			indices.UploadVertices(new uint[] {0, 1, 2, 3});
+			indices.UploadIndices(new uint[] {0, 1, 2, 3});
 		}
 		
 		
@@ -113,9 +113,9 @@ namespace CliTest
 			
 			Matrix4 mvp = modelViewMatrix * projectionMatrix;
 			//with DrawArray
-			//context.RunProgram(program, paramSpec.Cons(Tuple.Create<object,String>(mvp, "u_mvpMatrix")), BeginMode.TriangleStrip);
+			//program.Run(paramSpec.Cons(Tuple.Create<object,String>(mvp, "u_mvpMatrix")), BeginMode.TriangleStrip);
 			//with DrawElements
-			program.Run (paramSpec.Cons(Tuple.Create<object,String>(mvp, "u_mvpMatrix")), indices, BeginMode.TriangleStrip);
+			program.Run (paramSpec.Cons(Tuple.Create<String, Object>("u_mvpMatrix", mvp)), indices, BeginMode.TriangleStrip);
 			
 			SwapBuffers();
 		}
